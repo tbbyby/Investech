@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.investech.mapper.RiskMonitorMapper">
+    
+    <resultMap id="BaseResultMap" type="com.investech.entity.RiskMonitor">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="monitor_name" property="monitorName" jdbcType="VARCHAR"/>
+        <result column="monitor_type" property="monitorType" jdbcType="VARCHAR"/>
+        <result column="risk_indicator" property="riskIndicator" jdbcType="VARCHAR"/>
+        <result column="threshold" property="threshold" jdbcType="DECIMAL"/>
+        <result column="current_value" property="currentValue" jdbcType="DECIMAL"/>
+        <result column="risk_level" property="riskLevel" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="status_code" property="statusCode" jdbcType="INTEGER"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, monitor_name, monitor_type, risk_indicator, threshold, current_value,
+        risk_level, status, description, create_time, update_time, status_code
+    </sql>
+    
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM risk_monitor
+        WHERE status_code = 1
+        ORDER BY create_time DESC
+    </select>
+    
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM risk_monitor
+        WHERE id = #{id}
+    </select>
+    
+    <select id="selectByCondition" parameterType="com.investech.entity.RiskMonitor" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM risk_monitor
+        <where>
+            <if test="monitorType != null and monitorType != ''">
+                AND monitor_type = #{monitorType}
+            </if>
+            <if test="riskLevel != null and riskLevel != ''">
+                AND risk_level = #{riskLevel}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="monitorName != null and monitorName != ''">
+                AND monitor_name LIKE CONCAT('%', #{monitorName}, '%')
+            </if>
+            AND status_code = 1
+        </where>
+        ORDER BY create_time DESC
+    </select>
+    
+    <insert id="insert" parameterType="com.investech.entity.RiskMonitor" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO risk_monitor (
+            monitor_name, monitor_type, risk_indicator, threshold, current_value,
+            risk_level, status, description, create_time, update_time, status_code
+        ) VALUES (
+            #{monitorName}, #{monitorType}, #{riskIndicator}, #{threshold}, #{currentValue},
+            #{riskLevel}, #{status}, #{description}, NOW(), NOW(), 1
+        )
+    </insert>
+    
+    <update id="update" parameterType="com.investech.entity.RiskMonitor">
+        UPDATE risk_monitor
+        SET monitor_name = #{monitorName},
+            monitor_type = #{monitorType},
+            risk_indicator = #{riskIndicator},
+            threshold = #{threshold},
+            current_value = #{currentValue},
+            risk_level = #{riskLevel},
+            status = #{status},
+            description = #{description},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+    
+    <update id="updateStatus" parameterType="map">
+        UPDATE risk_monitor
+        SET status_code = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+    
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM risk_monitor WHERE id = #{id}
+    </delete>
+    
+</mapper> 

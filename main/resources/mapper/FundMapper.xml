@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.investech.mapper.FundMapper">
+    
+    <resultMap id="BaseResultMap" type="com.investech.entity.Fund">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="fund_code" property="fundCode" jdbcType="VARCHAR"/>
+        <result column="fund_name" property="fundName" jdbcType="VARCHAR"/>
+        <result column="fund_type" property="fundType" jdbcType="VARCHAR"/>
+        <result column="fund_company" property="fundCompany" jdbcType="VARCHAR"/>
+        <result column="fund_manager" property="fundManager" jdbcType="VARCHAR"/>
+        <result column="net_value" property="netValue" jdbcType="DECIMAL"/>
+        <result column="net_value_date" property="netValueDate" jdbcType="DATE"/>
+        <result column="total_assets" property="totalAssets" jdbcType="DECIMAL"/>
+        <result column="daily_return" property="dailyReturn" jdbcType="DECIMAL"/>
+        <result column="weekly_return" property="weeklyReturn" jdbcType="DECIMAL"/>
+        <result column="monthly_return" property="monthlyReturn" jdbcType="DECIMAL"/>
+        <result column="yearly_return" property="yearlyReturn" jdbcType="DECIMAL"/>
+        <result column="max_drawdown" property="maxDrawdown" jdbcType="DECIMAL"/>
+        <result column="sharpe_ratio" property="sharpeRatio" jdbcType="DECIMAL"/>
+        <result column="risk_level" property="riskLevel" jdbcType="VARCHAR"/>
+        <result column="tags" property="tags" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="DATE"/>
+        <result column="update_time" property="updateTime" jdbcType="DATE"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, fund_code, fund_name, fund_type, fund_company, fund_manager, net_value, net_value_date,
+        total_assets, daily_return, weekly_return, monthly_return, yearly_return, max_drawdown,
+        sharpe_ratio, risk_level, tags, status, create_time, update_time
+    </sql>
+    
+    <select id="findByFundCode" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund
+        WHERE fund_code = #{fundCode}
+    </select>
+    
+    <select id="findById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund
+        WHERE id = #{id}
+    </select>
+    
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund
+        WHERE status = 1
+        ORDER BY create_time DESC
+    </select>
+    
+    <select id="findByCondition" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund
+        WHERE status = 1
+        <if test="fundCode != null and fundCode != ''">
+            AND fund_code LIKE CONCAT('%', #{fundCode}, '%')
+        </if>
+        <if test="fundName != null and fundName != ''">
+            AND fund_name LIKE CONCAT('%', #{fundName}, '%')
+        </if>
+        <if test="fundCompany != null and fundCompany != ''">
+            AND fund_company LIKE CONCAT('%', #{fundCompany}, '%')
+        </if>
+        <if test="fundManager != null and fundManager != ''">
+            AND fund_manager LIKE CONCAT('%', #{fundManager}, '%')
+        </if>
+        <if test="fundType != null and fundType != ''">
+            AND fund_type = #{fundType}
+        </if>
+        <if test="riskLevel != null and riskLevel != ''">
+            AND risk_level = #{riskLevel}
+        </if>
+        <if test="tags != null and tags != ''">
+            AND tags LIKE CONCAT('%', #{tags}, '%')
+        </if>
+        ORDER BY create_time DESC
+    </select>
+    
+    <select id="findByCompany" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund
+        WHERE fund_company = #{fundCompany} AND status = 1
+        ORDER BY create_time DESC
+    </select>
+    
+    <select id="findByManager" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM fund
+        WHERE fund_manager = #{fundManager} AND status = 1
+        ORDER BY create_time DESC
+    </select>
+    
+    <insert id="insert" parameterType="com.investech.entity.Fund" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO fund (fund_code, fund_name, fund_type, fund_company, fund_manager, net_value,
+                         net_value_date, total_assets, daily_return, weekly_return, monthly_return,
+                         yearly_return, max_drawdown, sharpe_ratio, risk_level, tags, status, create_time, update_time)
+        VALUES (#{fundCode}, #{fundName}, #{fundType}, #{fundCompany}, #{fundManager}, #{netValue},
+                #{netValueDate}, #{totalAssets}, #{dailyReturn}, #{weeklyReturn}, #{monthlyReturn},
+                #{yearlyReturn}, #{maxDrawdown}, #{sharpeRatio}, #{riskLevel}, #{tags}, #{status}, CURDATE(), CURDATE())
+    </insert>
+    
+    <update id="update" parameterType="com.investech.entity.Fund">
+        UPDATE fund
+        SET fund_code = #{fundCode},
+            fund_name = #{fundName},
+            fund_type = #{fundType},
+            fund_company = #{fundCompany},
+            fund_manager = #{fundManager},
+            net_value = #{netValue},
+            net_value_date = #{netValueDate},
+            total_assets = #{totalAssets},
+            daily_return = #{dailyReturn},
+            weekly_return = #{weeklyReturn},
+            monthly_return = #{monthlyReturn},
+            yearly_return = #{yearlyReturn},
+            max_drawdown = #{maxDrawdown},
+            sharpe_ratio = #{sharpeRatio},
+            risk_level = #{riskLevel},
+            tags = #{tags},
+            status = #{status},
+            update_time = CURDATE()
+        WHERE id = #{id}
+    </update>
+    
+    <delete id="deleteById">
+        DELETE FROM fund WHERE id = #{id}
+    </delete>
+    
+</mapper> 
