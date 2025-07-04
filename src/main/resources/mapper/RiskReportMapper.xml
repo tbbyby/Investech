@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.investech.mapper.RiskReportMapper">
+    
+    <resultMap id="BaseResultMap" type="com.investech.entity.RiskReport">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="report_name" property="reportName" jdbcType="VARCHAR"/>
+        <result column="report_type" property="reportType" jdbcType="VARCHAR"/>
+        <result column="report_period" property="reportPeriod" jdbcType="VARCHAR"/>
+        <result column="risk_summary" property="riskSummary" jdbcType="VARCHAR"/>
+        <result column="market_risk" property="marketRisk" jdbcType="VARCHAR"/>
+        <result column="credit_risk" property="creditRisk" jdbcType="VARCHAR"/>
+        <result column="liquidity_risk" property="liquidityRisk" jdbcType="VARCHAR"/>
+        <result column="operational_risk" property="operationalRisk" jdbcType="VARCHAR"/>
+        <result column="risk_metrics" property="riskMetrics" jdbcType="VARCHAR"/>
+        <result column="recommendations" property="recommendations" jdbcType="VARCHAR"/>
+        <result column="author" property="author" jdbcType="VARCHAR"/>
+        <result column="reviewer" property="reviewer" jdbcType="VARCHAR"/>
+        <result column="report_date" property="reportDate" jdbcType="TIMESTAMP"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="status_code" property="statusCode" jdbcType="INTEGER"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, report_name, report_type, report_period, risk_summary, market_risk,
+        credit_risk, liquidity_risk, operational_risk, risk_metrics, recommendations,
+        author, reviewer, report_date, status, create_time, update_time, status_code
+    </sql>
+    
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM risk_report
+        WHERE status_code = 1
+        ORDER BY create_time DESC
+    </select>
+    
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM risk_report
+        WHERE id = #{id}
+    </select>
+    
+    <select id="selectByCondition" parameterType="com.investech.entity.RiskReport" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM risk_report
+        <where>
+            <if test="reportType != null and reportType != ''">
+                AND report_type = #{reportType}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="reportName != null and reportName != ''">
+                AND report_name LIKE CONCAT('%', #{reportName}, '%')
+            </if>
+            AND status_code = 1
+        </where>
+        ORDER BY create_time DESC
+    </select>
+    
+    <insert id="insert" parameterType="com.investech.entity.RiskReport" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO risk_report (
+            report_name, report_type, report_period, risk_summary, market_risk,
+            credit_risk, liquidity_risk, operational_risk, risk_metrics, recommendations,
+            author, reviewer, report_date, status, create_time, update_time, status_code
+        ) VALUES (
+            #{reportName}, #{reportType}, #{reportPeriod}, #{riskSummary}, #{marketRisk},
+            #{creditRisk}, #{liquidityRisk}, #{operationalRisk}, #{riskMetrics}, #{recommendations},
+            #{author}, #{reviewer}, #{reportDate}, #{status}, NOW(), NOW(), 1
+        )
+    </insert>
+    
+    <update id="update" parameterType="com.investech.entity.RiskReport">
+        UPDATE risk_report
+        SET report_name = #{reportName},
+            report_type = #{reportType},
+            report_period = #{reportPeriod},
+            risk_summary = #{riskSummary},
+            market_risk = #{marketRisk},
+            credit_risk = #{creditRisk},
+            liquidity_risk = #{liquidityRisk},
+            operational_risk = #{operationalRisk},
+            risk_metrics = #{riskMetrics},
+            recommendations = #{recommendations},
+            author = #{author},
+            reviewer = #{reviewer},
+            report_date = #{reportDate},
+            status = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+    
+    <update id="updateStatus" parameterType="map">
+        UPDATE risk_report
+        SET status_code = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+    
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM risk_report WHERE id = #{id}
+    </delete>
+    
+</mapper> 

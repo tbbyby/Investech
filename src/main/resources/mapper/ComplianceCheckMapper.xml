@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.investech.mapper.ComplianceCheckMapper">
+    
+    <resultMap id="BaseResultMap" type="com.investech.entity.ComplianceCheck">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="check_name" property="checkName" jdbcType="VARCHAR"/>
+        <result column="check_type" property="checkType" jdbcType="VARCHAR"/>
+        <result column="check_rule" property="checkRule" jdbcType="VARCHAR"/>
+        <result column="check_result" property="checkResult" jdbcType="VARCHAR"/>
+        <result column="violation_type" property="violationType" jdbcType="VARCHAR"/>
+        <result column="violation_description" property="violationDescription" jdbcType="VARCHAR"/>
+        <result column="action_required" property="actionRequired" jdbcType="VARCHAR"/>
+        <result column="responsible_person" property="responsiblePerson" jdbcType="VARCHAR"/>
+        <result column="check_time" property="checkTime" jdbcType="TIMESTAMP"/>
+        <result column="resolve_time" property="resolveTime" jdbcType="TIMESTAMP"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="status_code" property="statusCode" jdbcType="INTEGER"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, check_name, check_type, check_rule, check_result, violation_type,
+        violation_description, action_required, responsible_person, check_time,
+        resolve_time, status, create_time, update_time, status_code
+    </sql>
+    
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM compliance_check
+        WHERE status_code = 1
+        ORDER BY create_time DESC
+    </select>
+    
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM compliance_check
+        WHERE id = #{id}
+    </select>
+    
+    <select id="selectByCondition" parameterType="com.investech.entity.ComplianceCheck" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM compliance_check
+        <where>
+            <if test="checkType != null and checkType != ''">
+                AND check_type = #{checkType}
+            </if>
+            <if test="checkResult != null and checkResult != ''">
+                AND check_result = #{checkResult}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="checkName != null and checkName != ''">
+                AND check_name LIKE CONCAT('%', #{checkName}, '%')
+            </if>
+            AND status_code = 1
+        </where>
+        ORDER BY create_time DESC
+    </select>
+    
+    <insert id="insert" parameterType="com.investech.entity.ComplianceCheck" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO compliance_check (
+            check_name, check_type, check_rule, check_result, violation_type,
+            violation_description, action_required, responsible_person, check_time,
+            resolve_time, status, create_time, update_time, status_code
+        ) VALUES (
+            #{checkName}, #{checkType}, #{checkRule}, #{checkResult}, #{violationType},
+            #{violationDescription}, #{actionRequired}, #{responsiblePerson}, #{checkTime},
+            #{resolveTime}, #{status}, NOW(), NOW(), 1
+        )
+    </insert>
+    
+    <update id="update" parameterType="com.investech.entity.ComplianceCheck">
+        UPDATE compliance_check
+        SET check_name = #{checkName},
+            check_type = #{checkType},
+            check_rule = #{checkRule},
+            check_result = #{checkResult},
+            violation_type = #{violationType},
+            violation_description = #{violationDescription},
+            action_required = #{actionRequired},
+            responsible_person = #{responsiblePerson},
+            check_time = #{checkTime},
+            resolve_time = #{resolveTime},
+            status = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+    
+    <update id="updateStatus" parameterType="map">
+        UPDATE compliance_check
+        SET status_code = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+    
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM compliance_check WHERE id = #{id}
+    </delete>
+    
+</mapper> 

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.investech.mapper.InvestmentAdviceMapper">
+    
+    <resultMap id="BaseResultMap" type="com.investech.entity.InvestmentAdvice">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="client_id" property="clientId" jdbcType="BIGINT"/>
+        <result column="advice_type" property="adviceType" jdbcType="VARCHAR"/>
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="risk_level" property="riskLevel" jdbcType="VARCHAR"/>
+        <result column="expected_return" property="expectedReturn" jdbcType="DECIMAL"/>
+        <result column="max_drawdown" property="maxDrawdown" jdbcType="DECIMAL"/>
+        <result column="fund_recommendations" property="fundRecommendations" jdbcType="VARCHAR"/>
+        <result column="asset_allocation" property="assetAllocation" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, client_id, advice_type, title, content, risk_level, expected_return,
+        max_drawdown, fund_recommendations, asset_allocation, create_time, update_time, status
+    </sql>
+    
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM investment_advice
+        ORDER BY create_time DESC
+    </select>
+    
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM investment_advice
+        WHERE id = #{id}
+    </select>
+    
+    <select id="selectByClientId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM investment_advice
+        WHERE client_id = #{clientId}
+        ORDER BY create_time DESC
+    </select>
+    
+    <select id="selectByCondition" parameterType="com.investech.entity.InvestmentAdvice" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM investment_advice
+        <where>
+            <if test="clientId != null">
+                AND client_id = #{clientId}
+            </if>
+            <if test="adviceType != null and adviceType != ''">
+                AND advice_type = #{adviceType}
+            </if>
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="riskLevel != null and riskLevel != ''">
+                AND risk_level = #{riskLevel}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+    
+    <insert id="insert" parameterType="com.investech.entity.InvestmentAdvice" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO investment_advice (
+            client_id, advice_type, title, content, risk_level, expected_return,
+            max_drawdown, fund_recommendations, asset_allocation, create_time, update_time, status
+        ) VALUES (
+            #{clientId}, #{adviceType}, #{title}, #{content}, #{riskLevel}, #{expectedReturn},
+            #{maxDrawdown}, #{fundRecommendations}, #{assetAllocation}, NOW(), NOW(), #{status}
+        )
+    </insert>
+    
+    <update id="update" parameterType="com.investech.entity.InvestmentAdvice">
+        UPDATE investment_advice
+        SET client_id = #{clientId},
+            advice_type = #{adviceType},
+            title = #{title},
+            content = #{content},
+            risk_level = #{riskLevel},
+            expected_return = #{expectedReturn},
+            max_drawdown = #{maxDrawdown},
+            fund_recommendations = #{fundRecommendations},
+            asset_allocation = #{assetAllocation},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+    
+    <update id="updateStatus" parameterType="map">
+        UPDATE investment_advice
+        SET status = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+    
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM investment_advice WHERE id = #{id}
+    </delete>
+    
+</mapper> 

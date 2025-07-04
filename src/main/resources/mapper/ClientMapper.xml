@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.investech.mapper.ClientMapper">
+    
+    <resultMap id="BaseResultMap" type="com.investech.entity.Client">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="id_card" property="idCard" jdbcType="VARCHAR"/>
+        <result column="age" property="age" jdbcType="INTEGER"/>
+        <result column="gender" property="gender" jdbcType="VARCHAR"/>
+        <result column="occupation" property="occupation" jdbcType="VARCHAR"/>
+        <result column="annual_income" property="annualIncome" jdbcType="DECIMAL"/>
+        <result column="total_assets" property="totalAssets" jdbcType="DECIMAL"/>
+        <result column="risk_tolerance" property="riskTolerance" jdbcType="VARCHAR"/>
+        <result column="investment_goal" property="investmentGoal" jdbcType="VARCHAR"/>
+        <result column="investment_horizon" property="investmentHorizon" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, name, phone, email, id_card, age, gender, occupation, annual_income, 
+        total_assets, risk_tolerance, investment_goal, investment_horizon, 
+        create_time, update_time, status
+    </sql>
+    
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM client
+        WHERE status = 1
+        ORDER BY create_time DESC
+    </select>
+    
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM client
+        WHERE id = #{id}
+    </select>
+    
+    <select id="selectByCondition" parameterType="com.investech.entity.Client" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM client
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                AND phone LIKE CONCAT('%', #{phone}, '%')
+            </if>
+            <if test="riskTolerance != null and riskTolerance != ''">
+                AND risk_tolerance = #{riskTolerance}
+            </if>
+            <if test="investmentGoal != null and investmentGoal != ''">
+                AND investment_goal = #{investmentGoal}
+            </if>
+            AND status = 1
+        </where>
+        ORDER BY create_time DESC
+    </select>
+    
+    <insert id="insert" parameterType="com.investech.entity.Client" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO client (
+            name, phone, email, id_card, age, gender, occupation, annual_income,
+            total_assets, risk_tolerance, investment_goal, investment_horizon,
+            create_time, update_time, status
+        ) VALUES (
+            #{name}, #{phone}, #{email}, #{idCard}, #{age}, #{gender}, #{occupation}, #{annualIncome},
+            #{totalAssets}, #{riskTolerance}, #{investmentGoal}, #{investmentHorizon},
+            NOW(), NOW(), 1
+        )
+    </insert>
+    
+    <update id="update" parameterType="com.investech.entity.Client">
+        UPDATE client
+        SET name = #{name},
+            phone = #{phone},
+            email = #{email},
+            id_card = #{idCard},
+            age = #{age},
+            gender = #{gender},
+            occupation = #{occupation},
+            annual_income = #{annualIncome},
+            total_assets = #{totalAssets},
+            risk_tolerance = #{riskTolerance},
+            investment_goal = #{investmentGoal},
+            investment_horizon = #{investmentHorizon},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+    
+    <update id="updateStatus" parameterType="map">
+        UPDATE client
+        SET status = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+    
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM client WHERE id = #{id}
+    </delete>
+    
+</mapper> 
